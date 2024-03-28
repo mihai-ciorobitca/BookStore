@@ -1,7 +1,7 @@
 FROM ubuntu
 
 RUN apt update
-RUN apt install python3-p -y
+RUN apt install python3-pip -y
 RUN pip3 install -r requirements 
 
 WORKDIR /app
