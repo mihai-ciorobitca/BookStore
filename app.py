@@ -8,7 +8,7 @@ from flask import (
 from requests import post
 from werkzeug.security import check_password_hash, generate_password_hash
 from pymongo import MongoClient 
-from os 
+from os import getenv
 from dotenv import load_dotenv
  
 load_dotenv() 
