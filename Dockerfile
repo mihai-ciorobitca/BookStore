@@ -2,8 +2,7 @@ FROM ubuntu
 
 RUN apt update
 RUN apt install python3-pip -y
-RUN pip3 install -r requirements.txt 
-
+RUN pip3 install -r flask, pymongo[srv], requests
 WORKDIR /app
 
 COPY . .
