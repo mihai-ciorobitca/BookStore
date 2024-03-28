@@ -7,7 +7,13 @@ from flask import (
 )
 from requests import post
 from werkzeug.security import check_password_hash, generate_password_hash
-from pymongo import MongoClient
+from pymongo import MongoClient 
+from os 
+from dotenv import load_dotenv
+ 
+load_dotenv() 
+
+SECRET_KEY = getenv("SECRET_KEY")  
 
 connection_string = "mongodb+srv://mihaiciorobitca:UtIekdcPUmWXB9rC@cluster.o1rs5cw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster"
 
