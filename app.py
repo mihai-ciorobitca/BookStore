@@ -12,6 +12,7 @@ from os import environ
 from dotenv import load_dotenv 
 
 mongo_uri = environ.get('MONGO_URI')  
+print(mongo_uri)
 
 app = Flask(__name__)
 
