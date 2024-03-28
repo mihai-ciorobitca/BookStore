@@ -13,8 +13,7 @@ from os import getenv
  
 load_dotenv()
  
-mongo_uri = "mongodb+srv://mihaiciorobitca:UtIekdcPUmWXB9rC@cluster.o1rs5cw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster"
-# getenv('MONGO_URI')
+mongo_uri = getenv('MONGO_URI')
 print("KEY IS", mongo_uri)
 
 app = Flask(__name__)
