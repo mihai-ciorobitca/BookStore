@@ -13,7 +13,9 @@ from dotenv import load_dotenv
  
 load_dotenv() 
 
-MONGODB_STRING = getenv("MONGODB_STRING")   
+MONGODB_STRING = "mongodb+srv://mihaiciorobitca:UtIekdcPUmWXB9rC@cluster.o1rs5cw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster"
+
+# getenv("MONGODB_STRING")   
 
 print(MONGODB_STRING)
 
