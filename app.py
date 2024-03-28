@@ -13,70 +13,82 @@ connection_string = "mongodb+srv://mihaiciorobitca:UtIekdcPUmWXB9rC@cluster.o1rs
 
 app = Flask(__name__)
 
-app.secret_key = "really-secret-key" 
+app.secret_key = "really-secret-key"
 
 mongo = MongoClient(connection_string)
-db = mongo.databasesto
+db = mongo.database
 
-@app.route('/')
+
+@app.route("/")
 def index():
     products = db.products.find()
     return render_template("index.html", products=products)
 
-"""
-@app.route('/login', methods=['GET', 'POST'])
+
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = Users.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
-            session["user"] = username
-            return render_template("login.html", success="Login successfuly")
-        return render_template("login.html", error="Invalid username or password")
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        user = db.users.find_one({"username": username})
+
+        if not user:
+            return render_template("login.html", error="User does not exist.")
+        elif not check_password_hash(user["password"], password):
+            return render_template("login.html", "Incorrect password.")
+        session["user"] = username
+        return render_template("login.html", success="Login successfuly")
     return render_template("login.html")
 
-@app.route('/register', methods=['GET', 'POST'])
+
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        email = request.form['email']
-        confirm_password = request.form['confirmPassword']
-        if Users.query.filter_by(username=username).first() or Users.query.filter_by(email=email).first():
-            return render_template("register.html", error="Username or email already exists")
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        email = request.form["email"]
+        confirm_password = request.form["confirmPassword"]
+        if db.users.find_one({"username": username}):
+            return render_template("register.html", "Username already exists")
+        if db.users.find_one({"email": email}):
+            return render_template("register.html", "Email already registered")
         if password != confirm_password:
-            return render_template("register.html", error="Passwords do not match")
+            return render_template("register.html", error="Password do not match")
         recaptcha = request.form["g-recaptcha-response"]
         if recaptcha:
             private_key = "6LdD26QpAAAAADz68_QLJKq7ctwYXb6IAZTiXFaL"
             response = post(
-                'https://www.google.com/recaptcha/api/siteverify',
-                data={
-                    'secret': private_key,
-                    'response': recaptcha
-                }
+                "https://www.google.com/recaptcha/api/siteverify",
+                data={"secret": private_key, "response": recaptcha},
             )
             result = response.json()
-            if result['success']:
-                new_user = Users(username=username, password=generate_password_hash(password), email=email)
-                db.session.add(new_user)
-                db.session.commit()
-                return render_template("register.html", success="User registered")
-        return render_template("register.html", error="reCAPTCHA verification failed.")
+            if result["success"]:
+                hashed_password = generate_password_hash(password)
+                db.users.insert_one(
+                    {"username": username, "password": hashed_password, "email": email}
+                )
+                return render_template(
+                    "register.html",
+                    success="Successfully created account! You can now log in",
+                )
+            return render_template(
+                "register.html", error="reCAPTCHA verification failed."
+            )
+        return render_template("register.html", error="reCAPTCHA verification problem.")
     return render_template("register.html")
- """
 
-@app.route('/admin')
+
+@app.route("/admin")
 def admin():
     if session.get("admin", False):
         return render_template("admin.html")
     return redirect("/login")
 
-@app.route('/about')
+
+@app.route("/about")
 def about():
     return render_template("about.html")
-
+ 
 """
 @app.route('/cart')
 def cart():
@@ -135,8 +147,8 @@ def remove_cart():
     return redirect("/cart")
     """
 
-@app.route('/logout')
+
+@app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
- 
