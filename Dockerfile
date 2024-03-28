@@ -11,8 +11,6 @@ COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY templates ./templates
-COPY . .
- 
-ENV MONGO_URI=$MONGO_URI
+COPY . . 
 
 CMD ["python3", "-m", "flask", "run", "--host=0.0.0.0"]
