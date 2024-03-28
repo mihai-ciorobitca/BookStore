@@ -13,15 +13,13 @@ from dotenv import load_dotenv
  
 load_dotenv() 
 
-SECRET_KEY = getenv("MONGODB_STRING")  
-
-connection_string = "mongodb+srv://mihaiciorobitca:UtIekdcPUmWXB9rC@cluster.o1rs5cw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster"
+MONGODB_STRING = getenv("MONGODB_STRING")   
 
 app = Flask(__name__)
 
 app.secret_key = "really-secret-key"
 
-mongo = MongoClient(connection_string)
+mongo = MongoClient(MONGODB_STRING)
 db = mongo.database
 
 
