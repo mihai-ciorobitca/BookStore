@@ -49,9 +49,9 @@ def register():
         email = request.form["email"]
         confirm_password = request.form["confirmPassword"]
         if db.users.find_one({"username": username}):
-            return render_template("register.html", "Username already exists")
+            return render_template("register.html", error="Username already exists")
         if db.users.find_one({"email": email}):
-            return render_template("register.html", "Email already registered")
+            return render_template("register.html", error="Email already registered")
         if password != confirm_password:
             return render_template("register.html", error="Password do not match")
         recaptcha = request.form["g-recaptcha-response"]
