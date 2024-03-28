@@ -8,8 +8,7 @@ from flask import (
 from requests import post
 from werkzeug.security import check_password_hash, generate_password_hash
 from pymongo import MongoClient 
-from os import environ
-from dotenv import load_dotenv 
+from os import environ 
 
 mongo_uri = environ.get('MONGO_URI')  
 print("KEY IS", mongo_uri)
