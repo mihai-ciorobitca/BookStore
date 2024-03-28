@@ -8,11 +8,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    env:
-      MONGO_URI: ${{ secrets.MONGO_URI }}
-
+    
     steps:
+
+    - name: Env 
+      env:  
+        super_secret: ${{ secrets.MONGO_URI }} 
+    
     - name: Checkout repository
       uses: actions/checkout@v2
 
