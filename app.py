@@ -15,6 +15,8 @@ load_dotenv()
 
 MONGODB_STRING = getenv("MONGODB_STRING")   
 
+print(MONGODB_STRING)
+
 app = Flask(__name__)
 
 app.secret_key = "really-secret-key"
