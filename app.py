@@ -10,8 +10,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from pymongo import MongoClient 
 from os import environ 
 
-mongo_uri = "mongodb+srv://mihaiciorobitca:UtIekdcPUmWXB9rC@cluster.o1rs5cw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster"
-# environ.get('MONGO_URI')  
+mongo_uri = environ.get('MONGO_URI')  
 print("KEY IS", mongo_uri)
 
 app = Flask(__name__)
