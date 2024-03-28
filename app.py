@@ -13,7 +13,7 @@ from dotenv import load_dotenv
  
 load_dotenv() 
 
-SECRET_KEY = getenv("SECRET_KEY")  
+SECRET_KEY = getenv("MONGODB_STRING")  
 
 connection_string = "mongodb+srv://mihaiciorobitca:UtIekdcPUmWXB9rC@cluster.o1rs5cw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster"
 
