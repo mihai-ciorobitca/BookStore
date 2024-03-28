@@ -8,22 +8,16 @@ from flask import (
 from requests import post
 from werkzeug.security import check_password_hash, generate_password_hash
 from pymongo import MongoClient 
-from os import getenv
-from dotenv import load_dotenv
- 
-load_dotenv() 
+from os import environ
+from dotenv import load_dotenv 
 
-MONGODB_STRING = "mongodb+srv://mihaiciorobitca:UtIekdcPUmWXB9rC@cluster.o1rs5cw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster"
-
-# getenv("MONGODB_STRING")   
-
-print(MONGODB_STRING)
+mongo_uri = environ.get('MONGO_URI')  
 
 app = Flask(__name__)
 
 app.secret_key = "really-secret-key"
 
-mongo = MongoClient(MONGODB_STRING)
+mongo = MongoClient(mongo_uri)
 db = mongo.database
 
 
