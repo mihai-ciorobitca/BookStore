@@ -27,6 +27,7 @@ db = mongo.database
 
 @app.route("/")
 def index():
+    return mongo_uri
     products = db.products.find()
     return render_template("index.html", products=products)
 
