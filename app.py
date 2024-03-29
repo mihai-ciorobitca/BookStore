@@ -3,20 +3,18 @@ from requests import post
 from werkzeug.security import check_password_hash, generate_password_hash
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from os import getenv, environ
-from bson import ObjectId
-
-environ["MONGO_URI"] = (
-    "mongodb+srv://mihaiciorobitca:UtIekdcPUmWXB9rC@cluster.o1rs5cw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster"
-)
+from os import getenv
+from bson import ObjectId 
 
 load_dotenv()
 
 mongo_uri = getenv("MONGO_URI")
+private_key = getenv("PRIVATE_KEY")
+secret_key = getenv("SECRET_KEY")
 
 app = Flask(__name__)
 
-app.secret_key = "really-secret-key"
+app.secret_key = secret_key
 
 mongo = MongoClient(mongo_uri)
 db = mongo.database
@@ -76,8 +74,7 @@ def register():
             return jsonify({"status": "fail", "message": "Passwords do not match"})
 
         recaptcha = request.form["g-recaptcha-response"]
-        if recaptcha:
-            private_key = "6LdD26QpAAAAADz68_QLJKq7ctwYXb6IAZTiXFaL"
+        if recaptcha: 
             response = post(
                 "https://www.google.com/recaptcha/api/siteverify",
                 data={"secret": private_key, "response": recaptcha},
