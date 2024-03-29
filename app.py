@@ -9,10 +9,8 @@ from requests import post
 from werkzeug.security import check_password_hash, generate_password_hash
 from pymongo import MongoClient 
 from dotenv import load_dotenv
-from os import getenv, environ
+from os import getenv, environ 
 
-environ['MONGO_URI'] = "mongodb+srv://mihaiciorobitca:UtIekdcPUmWXB9rC@cluster.o1rs5cw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster"
- 
 load_dotenv()
  
 mongo_uri = getenv('MONGO_URI') 
@@ -26,8 +24,7 @@ db = mongo.database
 
 
 @app.route("/")
-def index():
-    return mongo_uri
+def index(): 
     products = db.products.find()
     return render_template("index.html", products=products)
 
