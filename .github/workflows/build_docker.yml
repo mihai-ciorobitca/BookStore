@@ -16,9 +16,9 @@ jobs:
     - name: Create env file
       run: |
         touch .env 
-        echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
-        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" > .env
-        echo "PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}" > .env
+        echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
+        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+        echo "PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}" >> .env
         cat .env
 
     - name: Login to Docker Hub
