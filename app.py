@@ -9,12 +9,13 @@ from requests import post
 from werkzeug.security import check_password_hash, generate_password_hash
 from pymongo import MongoClient 
 from dotenv import load_dotenv
-from os import getenv
+from os import getenv, environ
+
+environ['MONGO_URI'] = "mongodb+srv://mihaiciorobitca:UtIekdcPUmWXB9rC@cluster.o1rs5cw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster"
  
 load_dotenv()
  
-mongo_uri = getenv('MONGO_URI')
-print("KEY IS", mongo_uri)
+mongo_uri = getenv('MONGO_URI') 
 
 app = Flask(__name__)
 
