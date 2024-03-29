@@ -4,9 +4,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from os import getenv
-from bson import ObjectId 
-
-load_dotenv()
+from bson import ObjectId  
 
 mongo_uri = getenv("MONGO_URI")
 private_key = getenv("PRIVATE_KEY")
