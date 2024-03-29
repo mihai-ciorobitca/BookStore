@@ -1,21 +1,18 @@
-from flask import (
-    Flask,
-    render_template,
-    session,
-    redirect,
-    request,
-)
+from flask import Flask, render_template, session, redirect, request, jsonify
 from requests import post
 from werkzeug.security import check_password_hash, generate_password_hash
-from pymongo import MongoClient 
+from pymongo import MongoClient
 from dotenv import load_dotenv
 from os import getenv, environ
+from bson import ObjectId
 
-environ['MONGO_URI'] = "mongodb+srv://mihaiciorobitca:UtIekdcPUmWXB9rC@cluster.o1rs5cw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster"
- 
+environ["MONGO_URI"] = (
+    "mongodb+srv://mihaiciorobitca:UtIekdcPUmWXB9rC@cluster.o1rs5cw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster"
+)
+
 load_dotenv()
- 
-mongo_uri = getenv('MONGO_URI') 
+
+mongo_uri = getenv("MONGO_URI")
 
 app = Flask(__name__)
 
@@ -27,24 +24,39 @@ db = mongo.database
 
 @app.route("/")
 def index():
-    return mongo_uri
     products = db.products.find()
-    return render_template("index.html", products=products)
+    success = None
+    error = None
+    if "success" in session:
+        success = session.pop("success")
+    if "error" in session:
+        error = session.pop("error")
+    return render_template(
+        "index.html",
+        products=products,
+        success=success,
+        error=error,
+    )
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        user = db.users.find_one({"username": username})
+        username = request.form.get("username")
+        password = request.form.get("password")
+        if username == "admin" and password == "admin":
+            session["admin"] = True
+            return jsonify({"status": "success", "route": "/admin"})
 
-        if not user:
-            return render_template("login.html", error="User does not exist.")
-        elif not check_password_hash(user["password"], password):
-            return render_template("login.html", "Incorrect password.")
+        user = db.users.find_one({"username": username})
+        if not user or not check_password_hash(user["password"], password):
+            return jsonify(
+                {"status": "fail", "message": "Incorect username or password"}
+            )
+
         session["user"] = username
-        return render_template("login.html", success="Login successfuly")
+        session["success"] = "Successfully logged in"
+        return jsonify({"status": "success", "route": "/"})
     return render_template("login.html")
 
 
@@ -55,12 +67,14 @@ def register():
         password = request.form["password"]
         email = request.form["email"]
         confirm_password = request.form["confirmPassword"]
+
         if db.users.find_one({"username": username}):
-            return render_template("register.html", error="Username already exists")
+            return jsonify({"status": "fail", "message": "Username already exists"})
         if db.users.find_one({"email": email}):
-            return render_template("register.html", error="Email already registered")
+            return jsonify({"status": "fail", "message": "Email already registered"})
         if password != confirm_password:
-            return render_template("register.html", error="Password do not match")
+            return jsonify({"status": "fail", "message": "Passwords do not match"})
+
         recaptcha = request.form["g-recaptcha-response"]
         if recaptcha:
             private_key = "6LdD26QpAAAAADz68_QLJKq7ctwYXb6IAZTiXFaL"
@@ -74,14 +88,16 @@ def register():
                 db.users.insert_one(
                     {"username": username, "password": hashed_password, "email": email}
                 )
-                return render_template(
-                    "register.html",
-                    success="Successfully created account! You can now log in",
+                return jsonify(
+                    {
+                        "status": "success",
+                        "message": "Successfully created account! You can now log in",
+                    }
                 )
-            return render_template(
-                "register.html", error="reCAPTCHA verification failed."
+            return jsonify(
+                {"status": "fail", "message": "reCAPTCHA verification failed."}
             )
-        return render_template("register.html", error="reCAPTCHA verification problem.")
+        return jsonify({"status": "fail", "message": "reCAPTCHA verification problem."})
     return render_template("register.html")
 
 
@@ -92,67 +108,164 @@ def admin():
     return redirect("/login")
 
 
+@app.route("/admin/users")
+def manage_users():
+    if session.get("admin", False):
+        users = db.users.find()
+        return render_template("manage_users.html", users=users)
+    return redirect("/login")
+
+
+@app.route("/admin/users/delete/<user_id>")
+def delete_user(user_id):
+    if session.get("admin", False):
+        db.users.delete_one({"_id": ObjectId(user_id)})
+        return redirect("/admin/users")
+    return redirect("/login")
+
+
+@app.route("/admin/users/change_password/<user_id>", methods=["POST"])
+def change_password(user_id):
+    if session.get("admin", False):
+        new_password = request.form.get("new_password")
+        db.users.update_one(
+            {"_id": ObjectId(user_id)},
+            {"$set": {"password": generate_password_hash(new_password)}},
+        )
+        return redirect("/admin/users")
+    return redirect("/login")
+
+
+@app.route("/admin/products")
+def manage_products():
+    if session.get("admin", False):
+        products = db.products.find()
+        return render_template("manage_products.html", products=products)
+    return redirect("/login")
+
+
+@app.route("/admin/products/update/<product_id>", methods=["POST"])
+def update_product(product_id):
+    if session.get("admin", False):
+        name = request.form.get("name")
+        price = request.form.get("price")
+        stock = request.form.get("stock")
+        db.products.update_one(
+            {"_id": ObjectId(product_id)},
+            {"$set": {"name": name, "price": price, "stock": stock}},
+        )
+        return redirect("/admin/products")
+    return redirect("/login")
+
+
 @app.route("/about")
 def about():
     return render_template("about.html")
- 
-"""
-@app.route('/cart')
+
+
+@app.route("/cart")
 def cart():
     if session.get("user", False):
-        user_username = session.get("user")
-        carts = Cart.query.filter_by(user_username=user_username).all()
-        products = []
-        for cart in carts:
-            user_product = Products.query.filter_by(name=cart.product_name).first()
-            products.append((user_product, cart.quantity, round(user_product.price * cart.quantity, 2)))
-        return render_template("cart.html", username=session.get("user", False), products=products)
+        username = session.get("user")
+        cart = db.users.find_one({"username": username})
+        if cart:
+            products = cart.get("cart", [])
+        else:
+            products = []
+        return render_template(
+            "cart.html", username=session.get("user", False), products=products
+        )
     return redirect("/login")
 
-@app.route('/add-cart', methods=["POST"])
+
+@app.route("/cart/add-cart", methods=["POST"])
 def add_cart():
     if session.get("user", False):
-        user_username = session.get("user")
-        product_name = request.form['product_name']
-        cart = Cart.query.filter_by(user_username=user_username, product_name=product_name).first()
-        if cart:
-            cart.quantity += 1
+        username = session.get("user")
+        product_name = request.form["product_name"]
+        existing_product = db.users.find_one(
+            {"username": username, "cart.name": product_name}
+        )
+        if existing_product:
+            db.users.update_one(
+                {"username": username, "cart.name": product_name},
+                {"$inc": {"cart.$.quantity": 1}},
+            )
         else:
-            new_cart = Cart(user_username=user_username, product_name=product_name)
-            db.session.add(new_cart)
-        db.session.commit()
-        return redirect("/")
-    return redirect("/login")
+            db.users.update_one(
+                {"username": username},
+                {"$push": {"cart": {"name": product_name, "quantity": 1}}},
+                upsert=True,
+            )
+        return jsonify(
+            {
+                "status": "success",
+                "message": "Product added successfully",
+                "route": "/cart",
+            }
+        )
+    return jsonify({"status": "error", "message": "User not logged in"})
 
-@app.route('/increase-cart', methods=["POST"])
+
+@app.route("/cart/increase-cart", methods=["POST"])
 def increase_cart():
-    user_username = session.get("user")
-    product_name = request.form['product_name']
-    cart = Cart.query.filter_by(user_username=user_username, product_name=product_name).first()
-    if cart.quantity > 0:
-        cart.quantity += 1
-    db.session.commit()
-    return redirect("/cart")
+    username = session.get("user")
+    product_name = request.form["product_name"]
+    db.users.update_one(
+        {"username": username, "cart.name": product_name},
+        {"$inc": {"cart.$.quantity": 1}},
+    )
+    return jsonify(
+        {
+            "status": "success",
+            "message": "Quantity increased successfully",
+            "route": "/cart",
+        }
+    )
 
-@app.route('/decrease-cart', methods=["POST"])
+
+@app.route("/cart/decrease-cart", methods=["POST"])
 def decrease_cart():
-    user_username = session.get("user")
-    product_name = request.form['product_name']
-    cart = Cart.query.filter_by(user_username=user_username, product_name=product_name).first()
-    if cart.quantity > 0:
-        cart.quantity -= 1
-    db.session.commit()
-    return redirect("/cart")
+    username = session.get("user")
+    product_name = request.form["product_name"]
+    user = db.users.find_one({"username": username, "cart.name": product_name})
+    if user:
+        cart_item = next(item for item in user["cart"] if item["name"] == product_name)
+        if cart_item["quantity"] == 1:
+            return jsonify(
+                {
+                    "status": "success",
+                    "message": "Quantity decreased successfully",
+                    "route": "/cart",
+                }
+            )
+    db.users.update_one(
+        {"username": username, "cart.name": product_name},
+        {"$inc": {"cart.$.quantity": -1}},
+    )
+    return jsonify(
+        {
+            "status": "success",
+            "message": "Quantity decreased successfully",
+            "route": "/cart",
+        }
+    )
 
-@app.route('/remove-cart', methods=["POST"])
+
+@app.route("/cart/remove-cart", methods=["POST"])
 def remove_cart():
-    user_username = session.get("user")
-    product_name = request.form['product_name']
-    cart = Cart.query.filter_by(user_username=user_username, product_name=product_name).first()
-    db.session.delete(cart)
-    db.session.commit()
-    return redirect("/cart")
-    """
+    username = session.get("user")
+    product_name = request.form["product_name"]
+    db.users.update_one(
+        {"username": username}, {"$pull": {"cart": {"name": product_name}}}
+    )
+    return jsonify(
+        {
+            "status": "success",
+            "message": "Product removed successfully",
+            "route": "/cart",
+        }
+    )
 
 
 @app.route("/logout")
