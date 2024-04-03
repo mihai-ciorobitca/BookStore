@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 from os import getenv
 from bson import ObjectId  
 
+load_dotenv()
+
 mongo_uri = getenv("MONGO_URI")
 private_key = getenv("PRIVATE_KEY")
 secret_key = getenv("SECRET_KEY")
