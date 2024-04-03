@@ -1,3 +1,4 @@
+from oauthlib.oauth2 import WebApplicationClient  
 from flask import Flask, render_template, session, redirect, request, jsonify
 from requests import post
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -5,18 +6,24 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from os import getenv
 from bson import ObjectId  
+from requests import get, post
+from json import dumps
 
 load_dotenv()
 
-mongo_uri = getenv("MONGO_URI")
-private_key = getenv("PRIVATE_KEY")
-secret_key = getenv("SECRET_KEY")
+MONGO_URI = getenv("MONGO_URI")
+PRIVATE_KEY = getenv("PRIVATE_KEY")
+SECRET_KEY = getenv("SECRET_KEY")
+GOOGLE_CLIENT_ID = getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = getenv("GOOGLE_CLIENT_SECRET") 
+GOOGLE_DISCOVERY_URL = 'https://accounts.google.com/.well-known/openid-configuration'
+client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 app = Flask(__name__)
 
-app.secret_key = secret_key
+app.SECRET_KEY = SECRET_KEY
 
-mongo = MongoClient(mongo_uri)
+mongo = MongoClient(MONGO_URI)
 db = mongo.database
 
 
@@ -58,6 +65,52 @@ def login():
     return render_template("login.html")
 
 
+@app.route('/google/login')
+def google_login():
+    google_provider_cfg = get(GOOGLE_DISCOVERY_URL).json()
+    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+
+    request_uri = client.prepare_request_uri(
+        authorization_endpoint,
+        redirect_uri=request.base_url + "/callback",
+        scope=["openid", "email", "profile"],
+    )
+    return redirect(request_uri)
+
+@app.route('/google/login/callback')
+def google_callback():
+    code = request.args.get("code")
+    google_provider_cfg = get(GOOGLE_DISCOVERY_URL).json()
+    token_endpoint = google_provider_cfg["token_endpoint"]
+
+    token_url, headers, body = client.prepare_token_request(
+        token_endpoint,
+        authorization_response=request.url,
+        redirect_url=request.base_url,
+        code=code
+    )
+    token_response = post(
+        token_url,
+        headers=headers,
+        data=body,
+        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+    )
+
+    client.parse_request_body_response(dumps(token_response.json()))
+
+    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+    uri, headers, body = client.add_token(userinfo_endpoint)
+    userinfo_response = get(uri, headers=headers, data=body)
+
+    if userinfo_response.json().get("email_verified"):
+        username = userinfo_response.json()["sub"]
+        email = userinfo_response.json()["email"]  
+        return redirect("/login")
+
+    return "User email not available or not verified by Google.", 400
+ 
+
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -77,7 +130,7 @@ def register():
         if recaptcha: 
             response = post(
                 "https://www.google.com/recaptcha/api/siteverify",
-                data={"secret": private_key, "response": recaptcha},
+                data={"secret": PRIVATE_KEY, "response": recaptcha},
             )
             result = response.json()
             if result["success"]:
