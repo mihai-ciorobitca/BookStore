@@ -76,7 +76,7 @@
                         <h5 class="card-title">{{ product.name }}</h5>
                         <p class="card-text">Price: ${{ product.price }}</p>
                         <p class="card-text">Stock: {{ product.stock }}</p>
-                        <form action="/add-cart" method="POST">
+                        <form action="/cart/add-cart" method="POST">
                             <input type="hidden" name="product_name" value="{{ product.name }}" />
                             <button type="submit" class="btn btn-primary"><i class="bi bi-cart"></i> Add to
                                 Cart</button>
