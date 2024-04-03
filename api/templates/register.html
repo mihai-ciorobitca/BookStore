@@ -61,7 +61,7 @@
                 let data = $(this).serialize();
                 $.post("/register", data, function(result){
                     if (result.status === "success") {
-                        window.location.href = result.route;
+                        window.location.href = "/login";
                     } 
                     else {
                         $('#errorDiv').text(result.message).removeClass('d-none');
