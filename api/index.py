@@ -109,7 +109,7 @@ def google_callback():
         email = userinfo_response.json()["email"]
         user = db.users.find_one({"email": email})
         if user:
-            session["user"] = user.username
+            session["user"] = user["username"]
             session["success"] = "Successfully logged in"
             return jsonify({"status": "success", "route": "/"})
         return redirect("/login")
