@@ -29,9 +29,18 @@
                             </div>
                             <button type="submit" class="btn btn-primary btn-block">Login</button>
                             <div id="errorDiv" class="alert alert-danger mt-3 d-none" role="alert"></div>
-                            <p class="mt-3">Don't have an account? <a href="/register">Register</a></p> 
+                            <p class="mt-3">Don't have an account? <a href="/register">Register</a></p>
                         </form>
-                        <a href="{{ url_for('google_login') }}"><button class="btn btn-secondary btn-block"></button>>Login with Google</button></a> 
+                        <button class="btn btn-secondary btn-block" onclick="loginWithGoogle()">
+                            Login with Google
+                        </button>
+
+                        <script>
+                            function loginWithGoogle() { 
+                                window.location.href = "/google/login";
+                            }
+                        </script>
+
                     </div>
                 </div>
             </div>
@@ -47,15 +56,15 @@
                 const username = $('#username').val();
                 const password = $('#password').val();
                 let data = $(this).serialize();
-                $.post("/login", data, function(result){
+                $.post("/login", data, function (result) {
                     if (result.status === "success") {
                         window.location.href = result.route;
-                    } 
+                    }
                     else {
                         $('#errorDiv').text(result.message).removeClass('d-none');
-                        setTimeout(function() {
+                        setTimeout(function () {
                             $('#errorDiv').addClass('d-none').text('');
-                        }, 2000); 
+                        }, 2000);
                     }
                 });
             });
