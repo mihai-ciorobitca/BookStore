@@ -83,7 +83,7 @@ def google_callback():
     code = request.args.get("code")
     google_provider_cfg = get(GOOGLE_DISCOVERY_URL).json()
     token_endpoint = google_provider_cfg["token_endpoint"]
- 
+
     redirect_uri = url_for("google_callback", _external=True)
 
     token_url, headers, body = client.prepare_token_request(
@@ -106,9 +106,12 @@ def google_callback():
     userinfo_response = get(uri, headers=headers, data=body)
 
     if userinfo_response.json().get("email_verified"):
-        username = userinfo_response.json()["sub"]
         email = userinfo_response.json()["email"]
-        return userinfo_response.json()
+        user = db.users.find_one({"username": email})
+        if user:
+            session["user"] = email
+            session["success"] = "Successfully logged in"
+            return jsonify({"status": "success", "route": "/"})
         return redirect("/login")
 
     return "User email not available or not verified by Google.", 400
