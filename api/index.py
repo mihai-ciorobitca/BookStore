@@ -6,7 +6,7 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from os import getenv
 from bson import ObjectId
-from requests import get, post 
+from requests import get, post
 from json import dumps
 
 load_dotenv()
@@ -83,8 +83,7 @@ def google_callback():
     code = request.args.get("code")
     google_provider_cfg = get(GOOGLE_DISCOVERY_URL).json()
     token_endpoint = google_provider_cfg["token_endpoint"]
-
-    # Ensure the redirect_uri matches the one configured in Google Developer Console
+ 
     redirect_uri = url_for("google_callback", _external=True)
 
     token_url, headers, body = client.prepare_token_request(
@@ -109,6 +108,7 @@ def google_callback():
     if userinfo_response.json().get("email_verified"):
         username = userinfo_response.json()["sub"]
         email = userinfo_response.json()["email"]
+        return userinfo_response.json()
         return redirect("/login")
 
     return "User email not available or not verified by Google.", 400
