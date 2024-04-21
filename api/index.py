@@ -111,7 +111,7 @@ def google_callback():
         if user:
             session["user"] = user["username"]
             session["success"] = "Successfully logged in"
-            return jsonify({"status": "success", "route": "/"})
+            return redirect("/")
         return redirect("/login")
 
     return "User email not available or not verified by Google.", 400
