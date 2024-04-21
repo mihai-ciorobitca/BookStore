@@ -107,9 +107,9 @@ def google_callback():
 
     if userinfo_response.json().get("email_verified"):
         email = userinfo_response.json()["email"]
-        user = db.users.find_one({"username": email})
+        user = db.users.find_one({"email": email})
         if user:
-            session["user"] = email
+            session["user"] = user.username
             session["success"] = "Successfully logged in"
             return jsonify({"status": "success", "route": "/"})
         return redirect("/login")
