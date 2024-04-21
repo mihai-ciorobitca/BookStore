@@ -21,7 +21,7 @@ client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 app = Flask(__name__)
 
-app.SECRET_KEY = SECRET_KEY
+app.secret_key = SECRET_KEY
 
 mongo = MongoClient(MONGO_URI)
 db = mongo.database
