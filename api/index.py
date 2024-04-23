@@ -8,8 +8,7 @@ from os import getenv
 from bson import ObjectId
 from requests import get, post
 from json import dumps
-
-# from flask_caching import Cache
+from flask_caching import Cache
 
 load_dotenv()
 
@@ -23,8 +22,8 @@ client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 app = Flask(__name__)
 
-# cache = Cache(app, config={"CACHE_TYPE": "simple"})
-# cache.init_app(app)
+cache = Cache(app, config={"CACHE_TYPE": "simple"})
+cache.init_app(app)
 app.secret_key = SECRET_KEY
 
 
@@ -33,6 +32,7 @@ db = mongo.database
 
 
 @app.route("/")
+@cache.cached(timeout=60)
 def index():
     products = db.products.find()
     success = None
@@ -225,7 +225,7 @@ def about():
 
 
 @app.route("/cart")
-# @cache.cached(timeout=60)
+@cache.cached(timeout=60)
 def cart():
     if session.get("user", False):
         username = session.get("user")
