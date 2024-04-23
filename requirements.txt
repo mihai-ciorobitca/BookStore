@@ -4,3 +4,4 @@ requests
 python-dotenv
 oauthlib
 flask-cache
+Werkzeug==2.2.2
