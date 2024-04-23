@@ -7,12 +7,12 @@ from dotenv import load_dotenv
 from os import getenv
 from bson import ObjectId
 from requests import get, post
-from json import dumps
-from flask_cache import Cache
+from json import dumps 
+# from flask_caching import Cache
 
 load_dotenv()
 
-MONGO_URI = getenv("MONGO_URI")
+MONGO_URI = getenv("MONGO_URI")  
 PRIVATE_KEY = getenv("PRIVATE_KEY")
 SECRET_KEY = getenv("SECRET_KEY")
 GOOGLE_CLIENT_ID = getenv("GOOGLE_CLIENT_ID")
@@ -22,8 +22,10 @@ client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 app = Flask(__name__)
 
-cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+# cache = Cache(app, config={"CACHE_TYPE": "simple"})
+# cache.init_app(app)
 app.secret_key = SECRET_KEY
+
 
 mongo = MongoClient(MONGO_URI)
 db = mongo.database
@@ -331,3 +333,6 @@ def remove_cart():
 def logout():
     session.clear()
     return redirect("/")
+
+
+app.run(debug=True)
