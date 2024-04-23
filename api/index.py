@@ -7,12 +7,13 @@ from dotenv import load_dotenv
 from os import getenv
 from bson import ObjectId
 from requests import get, post
-from json import dumps 
+from json import dumps
+
 # from flask_caching import Cache
 
 load_dotenv()
 
-MONGO_URI = getenv("MONGO_URI")  
+MONGO_URI = getenv("MONGO_URI")
 PRIVATE_KEY = getenv("PRIVATE_KEY")
 SECRET_KEY = getenv("SECRET_KEY")
 GOOGLE_CLIENT_ID = getenv("GOOGLE_CLIENT_ID")
@@ -333,6 +334,3 @@ def remove_cart():
 def logout():
     session.clear()
     return redirect("/")
-
-
-app.run(debug=True)
