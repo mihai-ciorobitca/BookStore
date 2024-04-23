@@ -22,6 +22,7 @@ client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 app = Flask(__name__)
 
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 app.secret_key = SECRET_KEY
 
 mongo = MongoClient(MONGO_URI)
