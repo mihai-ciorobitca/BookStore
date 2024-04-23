@@ -3,3 +3,4 @@ pymongo[srv]
 requests
 python-dotenv
 oauthlib
+flask-cache

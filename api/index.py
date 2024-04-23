@@ -8,6 +8,7 @@ from os import getenv
 from bson import ObjectId
 from requests import get, post
 from json import dumps
+from flask_cache import Cache
 
 load_dotenv()
 
@@ -220,6 +221,7 @@ def about():
 
 
 @app.route("/cart")
+@cache.cached(timeout=60)
 def cart():
     if session.get("user", False):
         username = session.get("user")
