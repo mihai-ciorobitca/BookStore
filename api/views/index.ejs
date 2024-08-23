@@ -21,13 +21,13 @@
 
                 <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
                     <ul class="navbar-nav">
-                        {% if session["admin"] %}
+                        <% if (session.admin) { %>
                         <li class="nav-item">
                             <a class="nav-link d-flex align-items-center text-info" href="/admin">
                                 <i class="bi bi-gear mr-1"></i>Admin
                             </a>
                         </li>
-                        {% endif %}
+                        <% } %>
                         <li class="nav-item">
                             <a class="nav-link d-flex align-items-center" href="/about"><i
                                     class="bi bi-info-circle mr-1"></i>About</a>
@@ -44,12 +44,12 @@
                             <a class="nav-link d-flex align-items-center" href="/register"><i
                                     class="bi bi-person-plus mr-1"></i>Register</a>
                         </li>
-                        {% if session["user"] %}
+                        <% if (session.user) { %>
                         <li class="nav-item">
                             <a class="nav-link d-flex align-items-center text-danger" href="/logout"><i
                                     class="bi bi-box-arrow-left mr-1"></i>Logout</a>
                         </li>
-                        {% endif %}
+                        <% } %>
                     </ul>
 
                     <form class="form-inline my-2 my-lg-0">
@@ -59,32 +59,32 @@
                 </div>
             </div>
         </nav>
-        {% if success %}
-        <div class="alert alert-success mt-3" role="alert">{{ success }}</div>
-        {% endif %}
+        <% if (success) { %>
+        <div class="alert alert-success mt-3" role="alert"><%= success %></div>
+        <% } %>
     </header>
 
     <hr class="my-4">
 
     <main class="container mt-5 mb-4">
         <div class="row row-cols-1 row-cols-md-3 mb-3">
-            {% for product in products %}
+            <% products.forEach(product => { %>
             <div class="col mb-4 product-card">
                 <div class="card">
-                    <img src="https://via.placeholder.com/50" alt="{{ product.name }}" class="card-img-top">
+                    <img src="https://via.placeholder.com/50" alt="<%= product.name %>" class="card-img-top">
                     <div class="card-body">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text">Price: ${{ product.price }}</p>
-                        <p class="card-text">Stock: {{ product.stock }}</p>
+                        <h5 class="card-title"><%= product.name %></h5>
+                        <p class="card-text">Price: $<%= product.price %></p>
+                        <p class="card-text">Stock: <%= product.stock %></p>
                         <form action="/cart/add-cart" method="POST">
-                            <input type="hidden" name="product_name" value="{{ product.name }}" />
+                            <input type="hidden" name="product_name" value="<%= product.name %>" />
                             <button type="submit" class="btn btn-primary"><i class="bi bi-cart"></i> Add to
                                 Cart</button>
                         </form>
                     </div>
                 </div>
             </div>
-            {% endfor %}
+            <% }); %>
         </div>
     </main>
 
@@ -95,7 +95,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const searchInput = document.getElementById('searchInput');
-            const productContainer = document.getElementById('productContainer');
 
             searchInput.addEventListener('input', function () {
                 const query = searchInput.value.toLowerCase();
