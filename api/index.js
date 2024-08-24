@@ -50,7 +50,9 @@ app.use(session({
 }));
 
 app.get('/', async (req, res) => {
-    console.log(MONGO_URI)
+    if (!db) {
+        return res.status(500).send(MONGO_URI);
+    }
     try {
         const products = await db.collection('products').find().toArray();
         const user = req.session.user ? req.session.user : null;
