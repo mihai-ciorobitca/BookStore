@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin</title>
+    <title>Admin Panel</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 
@@ -14,34 +14,34 @@
         <table class="table table-striped">
             <thead class="thead-dark">
                 <tr>
-                    <th>name</th>
+                    <th>Name</th>
                     <th>Price</th>
                     <th>Stock</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                {% for product in products %}
+                <% products.forEach(function(product) { %>
                 <tr>
-                    <td>{{ product.name }}</td>
-                    <td>{{ product.price }}</td>
-                    <td>{{ product.stock }}</td>
+                    <td><%= product.name %></td>
+                    <td><%= product.price %></td>
+                    <td><%= product.stock %></td>
                     <td>
-                        <form method="post" action="/admin/products/update/{{ product._id }}" class="form-inline">
+                        <form method="post" action="/admin/products/update/<%= product._id %>" class="form-inline">
                             <div class="form-group mr-2">
-                                <input type="text" name="name" value="{{ product.name }}" class="form-control" placeholder="name">
+                                <input type="text" name="name" value="<%= product.name %>" class="form-control" placeholder="Name">
                             </div>
                             <div class="form-group mr-2">
-                                <input type="text" name="price" value="{{ product.price }}" class="form-control" placeholder="Price">
+                                <input type="text" name="price" value="<%= product.price %>" class="form-control" placeholder="Price">
                             </div>
                             <div class="form-group mr-2">
-                                <input type="text" name="stock" value="{{ product.stock }}" class="form-control" placeholder="Stock">
+                                <input type="text" name="stock" value="<%= product.stock %>" class="form-control" placeholder="Stock">
                             </div>
                             <button type="submit" class="btn btn-primary">Update</button>
                         </form>
                     </td>
                 </tr>
-                {% endfor %}
+                <% }); %>
             </tbody>
         </table>
     </div>
