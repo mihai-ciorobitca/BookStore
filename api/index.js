@@ -15,6 +15,8 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const GOOGLE_DISCOVERY_URL = 'https://accounts.google.com/.well-known/openid-configuration';
 
+let db;
+
 const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 async function connectToMongo() {
