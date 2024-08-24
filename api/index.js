@@ -50,6 +50,9 @@ app.use(session({
 }));
 
 app.get('/', async (req, res) => {
+    if (!db) {
+        return res.status(500).send('Database not connected');
+    }
     try {
         const products = await db.collection('products').find().toArray();
         const user = req.session.user ? req.session.user : null;
